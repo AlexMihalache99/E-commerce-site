@@ -1,40 +1,49 @@
-"use client"; // If you're using Next.js App Router
-
+"use client";
 import { useEffect, useState } from "react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
 
 export default function Home() {
-  const [products, setProducts] = useState<{ id: number; name: string; price: number }[]>([]);
+  const [products, setProducts] = useState<{ id: string; name: string; price: number; category: { name: string } }[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
+  // Fetch data from the API when the component mounts
   useEffect(() => {
     async function fetchProducts() {
-      const { data, error } = await supabase.from("products").select("*");
-      if (error) console.error("Error fetching products:", error);
-      else setProducts(data);
+      try {
+        const response = await fetch("/api/products"); // API route we just created
+        if (!response.ok) {
+          throw new Error("Failed to fetch products");
+        }
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
     }
+
     fetchProducts();
-  }, []);
+  }, []); // Empty dependency array ensures this runs only once on component mount
+
+  // Render loading state, error state, or product list
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p>Error: {error}</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Our Products</h1>
-      {products.length === 0 ? (
-        <p>Loading products...</p>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 mt-4">
-          {products.map((product) => (
-            <div key={product.id} className="p-4 border rounded-lg cursor-pointer hover:shadow-lg">
-              <h2 className="text-lg">{product.name}</h2>
-              <p className="text-gray-600">${product.price}</p>
-            </div>
-          ))}
-        </div>
-      )}
+    <div>
+      <h1>Our Products</h1>
+      <div className="product-list">
+        {products.map((product) => (
+          <div key={product.id} className="product-card">
+            <h2>{product.name}</h2>
+            <p>Category: {product.category}</p>
+            <p>Description: {product.description}</p>
+            <p>Price: ${product.price}</p>
+            <button>Add to Cart</button>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
