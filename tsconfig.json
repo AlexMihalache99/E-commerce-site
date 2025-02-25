@@ -19,7 +19,7 @@
       }
     ],
     "paths": {
-      "ecommerce/*": ["./src/*"]
+      "@/*": ["./src/*"]
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next.config.js", "prisma/seed.js"],

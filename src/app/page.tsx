@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 
 export default function Home() {
-  const [products, setProducts] = useState<{ id: string; name: string; price: number; category: { name: string } }[]>([]);
+  const [products, setProducts] = useState<{ id: string; name: string; price: number; 
+    description: string; category: { name: string } }[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -10,7 +11,7 @@ export default function Home() {
   useEffect(() => {
     async function fetchProducts() {
       try {
-        const response = await fetch("/api/products"); // API route we just created
+        const response = await fetch("/api/products");
         if (!response.ok) {
           throw new Error("Failed to fetch products");
         }
@@ -24,7 +25,7 @@ export default function Home() {
     }
 
     fetchProducts();
-  }, []); // Empty dependency array ensures this runs only once on component mount
+  }, []);
 
   // Render loading state, error state, or product list
   if (loading) return <p>Loading products...</p>;
@@ -37,7 +38,7 @@ export default function Home() {
         {products.map((product) => (
           <div key={product.id} className="product-card">
             <h2>{product.name}</h2>
-            <p>Category: {product.category}</p>
+            <p>Category: {product.category.name}</p>
             <p>Description: {product.description}</p>
             <p>Price: ${product.price}</p>
             <button>Add to Cart</button>
